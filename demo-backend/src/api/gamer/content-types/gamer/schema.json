@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gamers",
+  "info": {
+    "singularName": "gamer",
+    "pluralName": "gamers",
+    "displayName": "Gamer"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "gamers"
+    },
+    "game": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::game.game",
+      "inversedBy": "gamers"
+    },
+    "score": {
+      "type": "integer"
+    }
+  }
+}
