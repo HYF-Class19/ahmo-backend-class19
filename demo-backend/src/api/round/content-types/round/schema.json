@@ -4,7 +4,8 @@
   "info": {
     "singularName": "round",
     "pluralName": "rounds",
-    "displayName": "Round"
+    "displayName": "Round",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -48,6 +49,13 @@
       "relation": "oneToMany",
       "target": "api::move.move",
       "mappedBy": "round"
+    },
+    "answer": {
+      "type": "enumeration",
+      "enum": [
+        "truth",
+        "dare"
+      ]
     }
   }
 }
