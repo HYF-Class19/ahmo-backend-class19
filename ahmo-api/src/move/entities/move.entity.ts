@@ -5,36 +5,29 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   ManyToOne,
-  OneToMany,
 } from 'typeorm';
-import { ChatEntity } from '../../chat/entities/chat.entity';
 import { UserEntity } from '../../user/entities/user.entity';
-import { MoveEntity } from '../../move/entities/move.entity';
+import { RoundEntity } from '../../round/entities/round.entity';
 
 @Entity()
-export class RoundEntity {
+export class MoveEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  round_data: string;
+  move_data: string;
 
-  @Column()
-  round_status: string;
-
-  @ManyToOne(() => ChatEntity, (chat) => chat.rounds, {
+  @ManyToOne(() => RoundEntity, (round) => round.moves, {
     onDelete: 'CASCADE',
     nullable: true,
   })
-  game: ChatEntity;
+  round: RoundEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.riddlers, {
+  @ManyToOne(() => UserEntity, (user) => user.moves, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
-  riddler: UserEntity;
-
-  @OneToMany(() => MoveEntity, (move) => move.round)
-  moves: MoveEntity[];
+  player: UserEntity;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
