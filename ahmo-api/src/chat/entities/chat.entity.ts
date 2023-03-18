@@ -5,10 +5,12 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   OneToMany,
-  OneToOne,
-} from 'typeorm';
+  OneToOne, ManyToOne
+} from "typeorm";
 import { MemberEntity } from '../../member/entities/member.entity';
 import { RoundEntity } from '../../round/entities/round.entity';
+import { MessageEntity } from "../../message/entities/message.entity";
+import { UserEntity } from "../../user/entities/user.entity";
 
 export enum ChatType {
   DIRECT = "direct",
@@ -28,8 +30,14 @@ export class ChatEntity {
   })
   type: ChatType
 
-  @Column()
+  @Column({nullable: true})
   name: string;
+
+  @ManyToOne(() => UserEntity, (user) => user.adminChats, {
+    onDelete: 'CASCADE'
+  })
+  admin: UserEntity;
+
 
   @OneToMany(() => MemberEntity, (member) => member.chat)
   members: MemberEntity[];
@@ -37,7 +45,10 @@ export class ChatEntity {
   @OneToMany(() => RoundEntity, (round) => round.game)
   rounds: RoundEntity[];
 
-  @Column()
+  @OneToMany(() => MessageEntity, (message) => message.chat)
+  messages: MessageEntity[];
+
+  @Column({nullable: true})
   game: string;
 
   @CreateDateColumn({ type: 'timestamp' })
