@@ -9,6 +9,8 @@ import {
 import { MemberEntity } from '../../member/entities/member.entity';
 import { RoundEntity } from '../../round/entities/round.entity';
 import { MoveEntity } from '../../move/entities/move.entity';
+import { MessageEntity } from "../../message/entities/message.entity";
+import { ChatEntity } from "../../chat/entities/chat.entity";
 
 @Entity()
 export class UserEntity {
@@ -38,6 +40,12 @@ export class UserEntity {
 
   @OneToMany(() => MoveEntity, (move) => move.player)
   moves: MoveEntity[];
+
+  @OneToMany(() => MessageEntity, (message) => message.sender)
+  messages: MessageEntity[];
+
+  @OneToMany(() => ChatEntity, (chat) => chat.admin)
+  adminChats: ChatEntity[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

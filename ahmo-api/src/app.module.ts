@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { RoundModule } from './round/round.module';
-import { ChatMemberModule } from './member/member.module';
+import { MemberModule } from './member/member.module';
 import { ChatModule } from './chat/chat.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MoveModule } from './move/move.module';
@@ -13,6 +13,8 @@ import { MoveEntity } from "./move/entities/move.entity";
 import { MemberEntity } from "./member/entities/member.entity";
 import { ChatEntity } from "./chat/entities/chat.entity";
 import { AuthModule } from "./auth/auth.module";
+import { MessageModule } from './message/message.module';
+import { MessageEntity } from "./message/entities/message.entity";
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -22,15 +24,16 @@ import { AuthModule } from "./auth/auth.module";
       username: 'root',
       password: 'podnes',
       database: 'ahmo',
-      entities: [UserEntity, RoundEntity, MoveEntity, MemberEntity, ChatEntity],
+      entities: [UserEntity, RoundEntity, MoveEntity, MemberEntity, ChatEntity, MessageEntity],
       synchronize: true,
     }),
     UserModule,
     ChatModule,
-    ChatMemberModule,
+    MemberModule,
     RoundModule,
     MoveModule,
-    AuthModule
+    AuthModule,
+    MessageModule
   ],
   controllers: [AppController],
   providers: [AppService],
