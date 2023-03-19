@@ -8,6 +8,8 @@ import { UserEntity } from "../user/entities/user.entity";
 import { MemberEntity } from "../member/entities/member.entity";
 import { UserService } from "../user/user.service";
 import { classToPlain, plainToClass } from "class-transformer";
+import {Server} from "socket.io";
+import {MessageEntity} from "../message/entities/message.entity";
 
 @Injectable()
 export class ChatService {
@@ -17,8 +19,8 @@ export class ChatService {
     @InjectRepository(MemberEntity)
     private memberRepository: Repository<MemberEntity>,
     private userService: UserService,
-  ) {
-  }
+  ) {}
+  private io: Server;
 
   async create(createChatDto: CreateChatDto, user: UserEntity): Promise<ChatEntity> {
     const chat = new ChatEntity();
@@ -35,8 +37,6 @@ export class ChatService {
     });
     const members = await Promise.all(memberPromises);
     chat.members = members;
-
-    console.log(chat)
     return this.repository.save(chat);
   }
 
