@@ -30,7 +30,7 @@ export class MessageService {
   }
 
   findAll() {
-    return `This action returns all message`;
+    return this.repository.find()
   }
 
   findOne(id: number) {
