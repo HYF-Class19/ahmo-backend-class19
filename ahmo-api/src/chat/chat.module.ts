@@ -10,6 +10,7 @@ import { UserEntity } from "../user/entities/user.entity";
 @Module({
   imports: [TypeOrmModule.forFeature([ChatEntity, MemberEntity, UserEntity])],
   controllers: [ChatController],
-  providers: [ChatService, UserService]
+  providers: [ChatService, UserService],
+  exports: [ChatService]
 })
 export class ChatModule {}

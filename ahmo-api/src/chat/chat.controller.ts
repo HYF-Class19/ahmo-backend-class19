@@ -19,6 +19,12 @@ export class ChatController {
     return this.chatService.findAll();
   }
 
+  @Get('/me')
+  @UseGuards(JwtAuthGuard)
+  findChatsByUserId(@Request() req) {
+return this.chatService.findChatsByUserId(req.user.id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.chatService.findOne(+id);

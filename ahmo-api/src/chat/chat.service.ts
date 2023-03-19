@@ -49,13 +49,7 @@ export class ChatService {
   }
 
   async findOne(id: number) {
-    const qb = await this.repository.createQueryBuilder('chat')
-    const chat = await qb.leftJoinAndSelect(
-      'chat.messages',
-      'message',
-    ).where('chat.id = :id', {id}).getOne();
-
-    return chat
+    return this.repository.findOne({where: {id}, relations: ['members', 'members.user', 'admin', 'messages', 'messages.sender', 'messages.chat']})
   }
 
   update(id: number, updateChatDto: UpdateChatDto) {
@@ -64,5 +58,26 @@ export class ChatService {
 
   remove(id: number) {
     return `This action removes a #${id} chat`;
+  }
+
+  async findChatsByUserId(userId: number) {
+    const qb = this.repository.createQueryBuilder('chat');
+    qb.leftJoin('chat.members', 'member');
+    qb.leftJoin('member.user', 'user');
+    qb.where('user.id = :currentUserId', { currentUserId: userId });
+    qb.leftJoinAndSelect('chat.members', 'chatMembers');
+    qb.leftJoinAndSelect('chatMembers.user', 'chatMembersUser');
+    qb.leftJoinAndSelect('chat.messages', 'chatMessages');
+    let chats = await qb.getMany();
+
+    chats = chats.map(chat => {
+      const lastMessage = chat.messages.length ? chat.messages[chat.messages.length - 1] : null;
+      delete chat.messages;
+      return {
+        ...chat,
+        lastMessage
+      }
+    })
+    return chats;
   }
 }

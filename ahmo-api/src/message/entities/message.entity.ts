@@ -15,6 +15,9 @@ export class MessageEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  text: string;
+
   @ManyToOne(() => ChatEntity, (chat) => chat.messages, {
     onDelete: 'CASCADE'
   })
