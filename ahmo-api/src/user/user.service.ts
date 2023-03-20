@@ -18,8 +18,8 @@ export class UserService {
     return this.repository.save({...dto});
   }
 
-  findAll() {
-    return `This action returns all user`;
+  findAll(name: string) {
+   return this.repository.createQueryBuilder('user').where('user.fullName LIKE :name', {name: `%${name}%`}).getMany()
   }
 
   findOne(id: number) {

@@ -21,11 +21,24 @@ io.on('connection', socket => {
         io.emit("getUsers", users)
     })
 
+    // typing and get typing
+
+    socket.on("typing", ({sender, chatId, receivers}) => {
+        const gotUses = getUsers(receivers)
+        io.to(gotUses.map(user => user.socketId)).emit("getTyping", {
+            sender,
+            chatId
+        })
+    })
+
+    socket.on("stopTyping", ({sender, chatId, receivers}) => {
+        const gotUses = getUsers(receivers)
+        io.to(gotUses.map(user => user.socketId)).emit("getStopTyping", {})
+    })
+
     // send and get message
     socket.on("sendMessage", ({id, sender, receivers, text, createdAt, chatId }) => {
         const gotUses = getUsers(receivers)
-        console.log(users)
-        console.log('gotUses', gotUses)
         io.to(gotUses.map(user => user.socketId)).emit("getMessage", {
             id,
             sender,
@@ -33,7 +46,6 @@ io.on('connection', socket => {
             createdAt,
             chatId
         })
-
     })
 
     socket.on("disconnect", () => {
