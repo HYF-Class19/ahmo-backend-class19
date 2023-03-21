@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
 import { RoundService } from './round.service';
 import { CreateRoundDto } from './dto/create-round.dto';
 import { UpdateRoundDto } from './dto/update-round.dto';
 
-@Controller('round')
+@Controller('rounds')
 export class RoundController {
   constructor(private readonly roundService: RoundService) {}
 
@@ -13,8 +13,8 @@ export class RoundController {
   }
 
   @Get()
-  findAll() {
-    return this.roundService.findAll();
+  findAllInGame(@Query('gameId') gameId: string) {
+    return this.roundService.findAll(+gameId);
   }
 
   @Get(':id')
