@@ -7,9 +7,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/entities/user.entity";
 import { MemberEntity } from "../member/entities/member.entity";
 import { UserService } from "../user/user.service";
-import { classToPlain, plainToClass } from "class-transformer";
-import {Server} from "socket.io";
-import {MessageEntity} from "../message/entities/message.entity";
+import {RoundService} from "../round/round.service";
 
 @Injectable()
 export class ChatService {
@@ -19,16 +17,20 @@ export class ChatService {
     @InjectRepository(MemberEntity)
     private memberRepository: Repository<MemberEntity>,
     private userService: UserService,
+    private roundService: RoundService,
   ) {}
-  private io: Server;
 
   async create(createChatDto: CreateChatDto, user: UserEntity): Promise<ChatEntity> {
     const chat = new ChatEntity();
+
+    if(createChatDto.game) {
+      chat.game = createChatDto.game
+    }
+
     chat.name = createChatDto.name;
     chat.type = createChatDto.type;
     chat.admin = user;
     const group = createChatDto.members.split(',').map(memberId => +memberId)
-
     const memberPromises = group.map(async memberId => {
       const member = new MemberEntity();
       member.user = await this.userService.findOne(memberId);
@@ -37,19 +39,25 @@ export class ChatService {
     });
     const members = await Promise.all(memberPromises);
     chat.members = members;
-    return this.repository.save(chat);
+    const createdChat = await this.repository.save(chat);
+
+    if(createChatDto.game) {
+        await this.roundService.create({chatId: createdChat.id, riddlerId: createdChat.admin.id})
+      return this.repository.save(createdChat);
+    }
+
+    return createdChat;
   }
 
   async findAll() {
     const qb = await this.repository.createQueryBuilder('chat')
       .leftJoinAndSelect('chat.members', 'member')
       .leftJoinAndSelect('member.user', 'user');
-
     return qb.getMany()
   }
 
   async findOne(id: number) {
-    return this.repository.findOne({where: {id}, relations: ['members', 'members.user', 'admin', 'messages', 'messages.sender', 'messages.chat']})
+    return this.repository.findOne({where: {id}, relations: ['members', 'members.user', 'admin', 'messages', 'messages.sender', 'messages.chat', 'rounds', 'rounds.riddler']})
   }
 
   update(id: number, updateChatDto: UpdateChatDto) {

@@ -16,11 +16,14 @@ export class RoundEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true})
   round_data: string;
 
   @Column()
   round_status: string;
+
+  @Column({ nullable: true })
+  round_winner: number;
 
   @ManyToOne(() => ChatEntity, (chat) => chat.rounds, {
     onDelete: 'CASCADE',

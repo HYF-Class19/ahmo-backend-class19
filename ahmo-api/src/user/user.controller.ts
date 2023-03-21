@@ -1,15 +1,16 @@
-import { Controller, Get, Request, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import {Controller, Get, Request, Body, Patch, Param, Delete, UseGuards, Query} from "@nestjs/common";
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import {query} from "express";
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query('query') query?: string) {
+    return this.userService.findAll(query);
   }
 
   @UseGuards(JwtAuthGuard)

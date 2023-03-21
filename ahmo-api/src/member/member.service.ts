@@ -13,4 +13,11 @@ export class MemberService {
   getAll() {
     return this.repository.find({relations: ['user', 'chat']});
   }
+
+  async addScore(id: number, chatId: number) {
+    const member = await this.repository.findOne({where: {user: {id}, chat: {id: chatId}}})
+    member.score++;
+    const user = await this.repository.update(member.id, {score: member.score});
+    return user
+  }
 }
