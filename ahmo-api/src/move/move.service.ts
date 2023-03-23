@@ -25,15 +25,16 @@ export class MoveService {
 
     const move = await this.repository.save({...dto, player: user, round});
 
-    if(move.move_type === 'statement') {
-        const isRight = move.move_data.toLowerCase().split(' ').includes(round.round_data)
+      const isRight = move.move_data.toLowerCase().split(' ').includes(round.round_data)
 
+    if(move.move_type === 'statement') {
         if(isRight) {
             await this.roundService.update(round.id, {round_status: 'finished', round_winner: user.id, chatId: round.game.id})
+            return {...move, correct: true}
         }
     }
 
-    return move
+    return {...move, correct: isRight}
   }
 
 
