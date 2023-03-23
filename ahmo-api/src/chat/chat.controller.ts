@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Request, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import {Controller, Get, Post, Body, Request, Patch, Param, Delete, UseGuards, Query} from "@nestjs/common";
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
@@ -21,8 +21,11 @@ export class ChatController {
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
-  findChatsByUserId(@Request() req) {
-return this.chatService.findChatsByUserId(req.user.id);
+  findChatsByUserId(@Request() req, @Query('game') game: boolean) {
+    if(game) {
+      return this.chatService.findGamesByUserId(req.user.id);
+    }
+    return this.chatService.findChatsByUserId(req.user.id);
   }
 
   @Get(':id')

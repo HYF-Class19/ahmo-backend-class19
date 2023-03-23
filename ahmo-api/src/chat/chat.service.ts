@@ -57,7 +57,7 @@ export class ChatService {
   }
 
   async findOne(id: number) {
-    return this.repository.findOne({where: {id}, relations: ['members', 'members.user', 'admin', 'messages', 'messages.sender', 'messages.chat', 'rounds', 'rounds.riddler']})
+    return this.repository.findOne({where: {id}, relations: ['members', 'members.user', 'admin', 'messages', 'messages.sender', 'messages.chat', 'rounds', 'rounds.riddler', 'rounds.moves']})
   }
 
   update(id: number, updateChatDto: UpdateChatDto) {
@@ -87,5 +87,18 @@ export class ChatService {
       }
     })
     return chats;
+  }
+
+  findGamesByUserId(id) {
+    const qb = this.repository.createQueryBuilder('chat');
+    qb.leftJoin('chat.members', 'member');
+    qb.leftJoin('member.user', 'user');
+    qb.where('user.id = :currentUserId', { currentUserId: id });
+    qb.leftJoinAndSelect('chat.members', 'chatMembers');
+    qb.leftJoinAndSelect('chatMembers.user', 'chatMembersUser');
+    qb.leftJoinAndSelect('chat.rounds', 'rounds');
+    qb.where('chat.type = :type', { type: 'game' })
+
+    return qb.getMany();
   }
 }
