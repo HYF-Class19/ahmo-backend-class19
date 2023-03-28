@@ -38,14 +38,17 @@ export class RoundService {
     const qb = await this.repository.createQueryBuilder('round')
     qb.leftJoin('round.game', 'game')
     qb.where('game.id = :gameId', {gameId})
-    qb.orderBy('round.id', 'DESC')
+    qb.orderBy('round.id', 'ASC')
     qb.leftJoinAndSelect('round.moves', 'moves')
-    qb.leftJoinAndSelect('moves.riddler', 'riddler')
+    // qb.leftJoinAndSelect('moves.riddler', 'riddler')
 
     return qb.getMany()
   }
 
-  findOne(id: number) {
+  findOne(id: number, q: string | undefined) {
+    if(q) {
+      return this.repository.findOne({where: {game: {id}, round_status: 'active'},  relations: ['moves', 'riddler', 'game']})
+    }
     return this.repository.findOne({where: {id}, relations: ['moves', 'riddler', 'game']})
   }
 

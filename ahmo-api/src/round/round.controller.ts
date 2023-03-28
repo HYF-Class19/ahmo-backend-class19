@@ -18,8 +18,8 @@ export class RoundController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roundService.findOne(+id);
+  findOne(@Param('id') id: string, @Query('q') q: string) {
+    return this.roundService.findOne(+id, q);
   }
 
   @Patch(':id')

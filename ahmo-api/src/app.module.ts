@@ -22,7 +22,7 @@ import { MessageEntity } from "./message/entities/message.entity";
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'podnes',
+      password: 'podnes1972',
       database: 'ahmo',
       entities: [UserEntity, RoundEntity, MoveEntity, MemberEntity, ChatEntity, MessageEntity],
       synchronize: true,
