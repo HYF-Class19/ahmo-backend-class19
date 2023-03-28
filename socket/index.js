@@ -54,6 +54,12 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("newRound", ({ receivers, round }) => {
+    const gotUses = getUsers(receivers);
+    console.log("new round users", gotUses);
+    io.to(gotUses.map((user) => user.socketId)).emit("getNewRound", round);
+  });
+
   socket.on(
     "sendMove",
     ({
