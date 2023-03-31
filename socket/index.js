@@ -90,6 +90,14 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on('updateWord', ({player, receivers, round_data}) => {
+    const gotUses = getUsers(receivers);
+    io.to(gotUses.map(user => user.socketId)).emit('getUpdatedWord', {
+      player,
+      round_data
+    })
+  })
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
     users = users.filter((user) => user.socketId !== socket.id);

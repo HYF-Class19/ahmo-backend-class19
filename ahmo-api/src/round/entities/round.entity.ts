@@ -25,6 +25,9 @@ export class RoundEntity {
   @Column({ nullable: true })
   round_winner: number;
 
+  @Column({default: 0})
+  attempt: number
+
   @ManyToOne(() => ChatEntity, (chat) => chat.rounds, {
     onDelete: 'CASCADE',
     nullable: true,

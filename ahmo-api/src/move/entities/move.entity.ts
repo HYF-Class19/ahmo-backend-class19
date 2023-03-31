@@ -19,7 +19,7 @@ export class MoveEntity {
 
   @Column()
   move_type: string;
-
+  
   @ManyToOne(() => RoundEntity, (round) => round.moves, {
     onDelete: 'CASCADE',
     nullable: true,

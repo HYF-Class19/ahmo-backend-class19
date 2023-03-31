@@ -40,14 +40,13 @@ export class RoundService {
     qb.where('game.id = :gameId', {gameId})
     qb.orderBy('round.id', 'ASC')
     qb.leftJoinAndSelect('round.moves', 'moves')
-    // qb.leftJoinAndSelect('moves.riddler', 'riddler')
 
     return qb.getMany()
   }
 
   findOne(id: number, q: string | undefined) {
     if(q) {
-      return this.repository.findOne({where: {game: {id}, round_status: 'active'},  relations: ['moves', 'riddler', 'game']})
+      return this.repository.findOne({where: {game: {id}, round_status: 'active'},  relations: ['moves.player', 'riddler', 'game']})
     }
     return this.repository.findOne({where: {id}, relations: ['moves', 'riddler', 'game']})
   }
@@ -63,6 +62,12 @@ export class RoundService {
 
         return this.repository.update(id, {round_winner: dto.round_winner})
     }
+  }
+
+  async addAttempt(id: number) {
+    const round = await this.repository.findOne({where: {id}})
+    round.attempt++
+    return this.repository.save(round)
   }
 
   remove(id: number) {
