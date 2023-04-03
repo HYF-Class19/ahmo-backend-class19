@@ -68,7 +68,7 @@ export class ChatService {
     return `This action removes a #${id} chat`;
   }
 
-  async findChatsByUserId(userId: number) {
+  async findChatsByUserId(userId: number, query?: string) {
     const qb = this.repository.createQueryBuilder('chat');
     qb.leftJoin('chat.members', 'member');
     qb.leftJoin('member.user', 'user');
@@ -89,7 +89,7 @@ export class ChatService {
     return chats;
   }
 
-  findGamesByUserId(id) {
+  findGamesByUserId(id: number, query?: string) {
     const qb = this.repository.createQueryBuilder('chat');
     qb.leftJoin('chat.members', 'member');
     qb.leftJoin('member.user', 'user');
@@ -99,6 +99,25 @@ export class ChatService {
     qb.leftJoinAndSelect('chat.rounds', 'rounds');
     qb.where('chat.type = :type', { type: 'game' })
 
+    return qb.getMany();
+  }
+  searchChats(id: number, queries: {query: string, type: string}) {
+
+    const qb = this.repository.createQueryBuilder('chat');
+    qb.leftJoinAndSelect('chat.members', 'chatMembers');
+    qb.leftJoinAndSelect('chatMembers.user', 'chatMembersUser');
+    qb.leftJoinAndSelect('chat.rounds', 'rounds');
+    qb.leftJoin('chat.members', 'member');
+    qb.leftJoin('member.user', 'user');
+    qb.where('user.id = :currentUserId', { currentUserId: id });
+    qb.andWhere('chat.name LIKE :name', { name: `%${queries.query}%`})
+
+    if(queries.type !== 'all') {
+      qb.andWhere('chat.type = :type', { type: queries.type })
+    } else {
+      qb.andWhere('chat.type != :type', { type: 'direct' })
+    }
+    
     return qb.getMany();
   }
 }

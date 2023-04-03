@@ -15,13 +15,17 @@ export class ChatController {
   }
 
   @Get()
-  findAll() {
-    return this.chatService.findAll();
+  @UseGuards(JwtAuthGuard)
+  searchChats(@Request() req, @Query() queries: {query: string, type: string}) {
+    if(req.user.id) {
+      return this.chatService.searchChats(req.user.id, queries)
+    } 
+    return this.chatService.findAll()
   }
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
-  findChatsByUserId(@Request() req, @Query('game') game: boolean) {
+  findChatsByUserId(@Request() req, @Query('game') game?: string) {
     if(game) {
       return this.chatService.findGamesByUserId(req.user.id);
     }

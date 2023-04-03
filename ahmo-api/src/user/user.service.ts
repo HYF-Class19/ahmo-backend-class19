@@ -18,8 +18,8 @@ export class UserService {
     return this.repository.save({...dto});
   }
 
-  findAll(name: string) {
-   return this.repository.createQueryBuilder('user').where('user.fullName LIKE :name', {name: `%${name}%`}).getMany()
+  findAll(name: string, userId: number) {
+    return this.repository.createQueryBuilder('user').where('user.fullName LIKE :name', {name: `%${name}%`}).andWhere('user.id != :userId', {userId}).getMany()
   }
 
   findOne(id: number) {
@@ -38,7 +38,11 @@ export class UserService {
     return this.repository.findOne({ where: { ...cond } });
   }
 
-  findById(id) {
+  findById(id: number) {
     return this.repository.findOne({ where: { id } });
+  }
+
+  search(name: string) {
+    return this.repository.createQueryBuilder('user').getMany()
   }
 }
