@@ -29,8 +29,9 @@ export class MessageService {
     })
   }
 
-  findAll() {
-    return this.repository.find()
+  findAll(id: number, limit: number, page: number) {
+
+    return this.repository.find({where: {chat: {id}}, relations: ['sender']})
   }
 
   findOne(id: number) {

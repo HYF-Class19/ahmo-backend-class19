@@ -34,13 +34,15 @@ export class RoundService {
     return round;
   }
 
-  async findAll(gameId: number) {
+  async findAll(gameId: number, limit?: number, page?:number) {
     const qb = await this.repository.createQueryBuilder('round')
     qb.leftJoin('round.game', 'game')
     qb.where('game.id = :gameId', {gameId})
     qb.orderBy('round.id', 'ASC')
     qb.leftJoinAndSelect('round.moves', 'moves')
-
+    qb.leftJoinAndSelect('round.riddler', 'riddler')
+    qb.skip((page - 1) * limit)
+    qb.take(limit)
     return qb.getMany()
   }
 
@@ -48,7 +50,7 @@ export class RoundService {
     if(q) {
       return this.repository.findOne({where: {game: {id}, round_status: 'active'},  relations: ['moves.player', 'riddler', 'game']})
     }
-    return this.repository.findOne({where: {id}, relations: ['moves', 'riddler', 'game']})
+    return this.repository.findOne({where: {id}, relations: ['moves', 'moves.player','riddler', 'game']})
   }
 
   async update(id: number, dto: any) {
