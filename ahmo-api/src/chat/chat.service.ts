@@ -59,7 +59,7 @@ export class ChatService {
   }
 
   async findOne(id: number) {
-    if(!id) return
+    if(!id) return 
     const chat = await this.repository.findOne({
       where: { id },
       relations: ['members', 'members.user', 'messages', 'messages.sender', 'admin', 'rounds', 'rounds.riddler', 'rounds.moves'],
@@ -108,11 +108,13 @@ export class ChatService {
     const qb = this.repository.createQueryBuilder('chat');
     qb.leftJoin('chat.members', 'member');
     qb.leftJoin('member.user', 'user');
+    qb.where('user.id = :currentUserId', { currentUserId: id });
     qb.leftJoin('chat.messages', 'messages')
     .orderBy('messages.createdAt', 'DESC');
     qb.leftJoinAndSelect('chat.members', 'chatMembers');
     qb.leftJoinAndSelect('chatMembers.user', 'chatMembersUser');
     qb.leftJoinAndSelect('chat.rounds', 'rounds');
+    qb.where('chat.type = :type', { type: 'game' })
     qb.where('user.id = :currentUserId', { currentUserId: id });
     qb.andWhere('chat.type = :type', { type: 'game' })
 

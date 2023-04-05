@@ -28,6 +28,9 @@ export class RoundEntity {
   @Column({default: 0})
   attempt: number
 
+  @Column({default: 0})
+  submiting: number
+
   @ManyToOne(() => ChatEntity, (chat) => chat.rounds, {
     onDelete: 'CASCADE',
     nullable: true,

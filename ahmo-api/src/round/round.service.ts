@@ -54,6 +54,11 @@ export class RoundService {
   }
 
   async update(id: number, dto: any) {
+    if(dto.submiting) {
+      const round = await this.repository.findOne({where: {id}})
+      const submiting = round.submiting + 1
+      return this.repository.update(id, {submiting})
+    }
     if(dto.round_data) {
         return this.repository.update(id, {round_data: dto.round_data.toLowerCase()})
     }
