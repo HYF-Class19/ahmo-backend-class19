@@ -38,8 +38,7 @@ export class ChatEntity {
   })
   admin: UserEntity;
 
-
-  @OneToMany(() => MemberEntity, (member) => member.chat)
+  @OneToMany(() => MemberEntity, (member) => member.chat,  { eager: true })
   members: MemberEntity[];
 
   @OneToMany(() => RoundEntity, (round) => round.game)

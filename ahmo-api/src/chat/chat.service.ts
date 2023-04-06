@@ -8,6 +8,8 @@ import { UserEntity } from "../user/entities/user.entity";
 import { MemberEntity } from "../member/entities/member.entity";
 import { UserService } from "../user/user.service";
 import {RoundService} from "../round/round.service";
+import { MessageEntity } from 'src/message/entities/message.entity';
+import { MoveEntity } from 'src/move/entities/move.entity';
 
 @Injectable()
 export class ChatService {
@@ -71,7 +73,13 @@ export class ChatService {
       return timeA - timeB;
     });
 
-    return {...chat, messages: sortedMessages }
+    const sortedRounds = chat.rounds.sort((a, b) => {
+      const timeA = new Date(a.createdAt).getTime();
+      const timeB = new Date(b.createdAt).getTime();
+      return timeA - timeB;
+    });
+
+    return {...chat, messages: sortedMessages, rounds: sortedRounds }
   }
 
   update(id: number, updateChatDto: UpdateChatDto) {
@@ -85,20 +93,47 @@ export class ChatService {
   async findChatsByUserId(userId: number, query?: string) {
     if(!userId) return 
     const qb = this.repository.createQueryBuilder('chat');
-    qb.leftJoinAndSelect('chat.members', 'chatMembers');
-    qb.leftJoinAndSelect('chatMembers.user', 'chatMembersUser');
     qb.leftJoinAndSelect('chat.messages', 'chatMessages')
     qb.leftJoinAndSelect('chatMessages.sender', 'sender')
+    qb.leftJoinAndSelect('chat.members', 'members');
+    qb.leftJoinAndSelect('members.user', 'user');
+    qb.leftJoinAndSelect('chat.rounds', 'rounds');
+    qb.leftJoinAndSelect('rounds.moves', 'moves')
     .orderBy('chatMessages.createdAt', 'DESC');
-    qb.where('chatMembersUser.id = :currentUserId', { currentUserId: userId });
+    qb.where('user.id = :currentUserId', { currentUserId: userId });
     let chats = await qb.getMany();
 
+    for (const chat of chats) {
+      await this.repository
+        .createQueryBuilder('chat')
+        .leftJoinAndSelect('chat.members', 'members')
+        .leftJoinAndSelect('members.user', 'user')
+        .where('chat.id = :chatId', { chatId: chat.id })
+        .getOne()
+        .then((populatedChat) => {
+          chat.members = populatedChat.members;
+        });
+    }
+
     chats = chats.map(chat => {
-      const lastMessage = chat.messages.length ? chat.messages[0] : null;
+      let lastMessage: MessageEntity
+      let lastMove: MoveEntity
+      let status: string
+      if(chat.type !== 'game') {
+        lastMessage = chat.messages.length ? chat.messages[0] : null; 
+      } else {
+        const lastRound = chat.rounds.length ? chat.rounds[0] : null;
+        status = lastRound.submiting >= 2 ? 'started' : 'not started'
+        lastMove = lastRound.moves.length ? lastRound.moves[lastRound.moves.length - 1] : null
+      }
+
       delete chat.messages;
+      delete chat.rounds
       return {
         ...chat,
-        lastMessage
+        lastMessage,
+        lastMove,
+        status
       }
     })
     return chats;

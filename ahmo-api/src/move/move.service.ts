@@ -21,7 +21,7 @@ export class MoveService {
 
   async create(dto: CreateMoveDto, userId: number) {
     const user = await this.userService.findById(userId);
-    const round = await this.repositoryRound.findOne({where: {id: dto.roundId,}, relations: ['game']})
+    const round = await this.repositoryRound.findOne({where: {id: dto.roundId,}, relations: ['game', 'riddler']})
 
     const move = await this.repository.save({...dto, player: user, round});
 
@@ -32,6 +32,9 @@ export class MoveService {
         if(isRight) {
             await this.roundService.update(round.id, {round_status: 'finished', round_winner: user.id, chatId: round.game.id})
             return {...move, correct: true}
+        } else if(round.game.game === 'truth or dare') {
+          await this.roundService.update(round.id, {round_status: 'finished', round_winner: round.riddler.id, chatId: round.game.id})
+            return {...move, correct: false}
         }
         if(round.attempt >= 3) {
           await this.roundService.update(round.id, {round_status: 'finished', round_winner: round.riddler.id, chatId: round.game.id})

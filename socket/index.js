@@ -34,6 +34,11 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on('submitRound', ({receivers}) => {
+    const gotUses = getUsers(receivers);
+    io.to(gotUses.map((user) => user.socketId)).emit("getSubmitRound", {});
+  })
+
   socket.on("stopTyping", ({ sender, chatId, receivers }) => {
     const gotUses = getUsers(receivers);
     io.to(gotUses.map((user) => user.socketId)).emit("getStopTyping", {});
@@ -90,11 +95,12 @@ io.on("connection", (socket) => {
     }
   );
 
-  socket.on('updateWord', ({player, receivers, round_data}) => {
+  socket.on('updateWord', ({player, receivers, round_data, roundId}) => {
     const gotUses = getUsers(receivers);
     io.to(gotUses.map(user => user.socketId)).emit('getUpdatedWord', {
       player,
-      round_data
+      round_data,
+      roundId
     })
   })
 
