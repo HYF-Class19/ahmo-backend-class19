@@ -1,4 +1,4 @@
-import {IsNumber, IsString} from "class-validator";
+import {IsNumber, IsOptional, IsString} from "class-validator";
 
 export class CreateMoveDto {
     @IsString()
@@ -9,5 +9,9 @@ export class CreateMoveDto {
 
     @IsNumber()
     roundId: number;
+
+    @IsOptional()
+    @IsString()
+    last_word: string
 }
 

@@ -1,51 +1,85 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMoveDto } from './dto/create-move.dto';
 import { UpdateMoveDto } from './dto/update-move.dto';
-import {MoveEntity} from "./entities/move.entity";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
-import {UserService} from "../user/user.service";
-import {RoundEntity} from "../round/entities/round.entity";
-import {RoundService} from "../round/round.service";
+import { MoveEntity } from './entities/move.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserService } from '../user/user.service';
+import { RoundEntity } from '../round/entities/round.entity';
+import { RoundService } from '../round/round.service';
 
 @Injectable()
 export class MoveService {
   constructor(
-     @InjectRepository(MoveEntity)
-        private repository: Repository<MoveEntity>,
-     @InjectRepository(RoundEntity)
-        private repositoryRound: Repository<RoundEntity>,
-     private userService: UserService,
-     private roundService: RoundService,
+    @InjectRepository(MoveEntity)
+    private repository: Repository<MoveEntity>,
+    @InjectRepository(RoundEntity)
+    private repositoryRound: Repository<RoundEntity>,
+    private userService: UserService,
+    private roundService: RoundService,
   ) {}
 
   async create(dto: CreateMoveDto, userId: number) {
     const user = await this.userService.findById(userId);
-    const round = await this.repositoryRound.findOne({where: {id: dto.roundId,}, relations: ['game', 'riddler']})
+    const round = await this.repositoryRound.findOne({
+      where: { id: dto.roundId },
+      relations: ['game', 'riddler'],
+    });
 
-    const move = await this.repository.save({...dto, player: user, round});
+    if (round.game.game === 'words') {
+      const word = dto.move_data.toLocaleLowerCase(); 
+      const apiKey = 's8coetpxmv8wfdszh88zv2lmqqjukrd5mdz7ldnadnloqtbco'; 
+      const accept = dto.last_word ? dto.last_word[dto.last_word.length - 1].toLowerCase() === dto.move_data[0].toLowerCase() : true
 
-      const isRight = move.move_data.toLowerCase().split(' ').includes(round.round_data)
 
-    if(move.move_type === 'statement') {
-        await this.roundService.addAttempt(round.id)
-        if(isRight) {
-            await this.roundService.update(round.id, {round_status: 'finished', round_winner: user.id, chatId: round.game.id})
-            return {...move, correct: true}
-        } else if(round.game.game === 'truth or dare') {
-          await this.roundService.update(round.id, {round_status: 'finished', round_winner: round.riddler.id, chatId: round.game.id})
-            return {...move, correct: false}
-        }
-        if(round.attempt >= 3) {
-          await this.roundService.update(round.id, {round_status: 'finished', round_winner: round.riddler.id, chatId: round.game.id})
-          return {...move, correct: false}
-        }
+      const url = `https://api.wordnik.com/v4/word.json/${word}/definitions?limit=1&api_key=${apiKey}`;
+
+      // make the API request
+      const response = await fetch(url)
+      if(response.ok && accept) {
+        const move = await this.repository.save({ ...dto, player: user, round});
+        return {...move, correct: true}
+      } else {
+        return {error: !accept ? 'You have to name a word string from your opponents word\'s last letter' : 'The word does not exist',correct: false}
+      }
     }
 
-    return {...move, correct: false}
+    const move = await this.repository.save({ ...dto, player: user, round});
+
+    const isRight = move.move_data
+      .toLowerCase()
+      .split(' ')
+      .includes(round.round_data);
+
+    if (move.move_type === 'statement') {
+      await this.roundService.addAttempt(round.id);
+      if (isRight) {
+        await this.roundService.update(round.id, {
+          round_status: 'finished',
+          round_winner: user.id,
+          chatId: round.game.id,
+        });
+        return { ...move, correct: true };
+      } else if (round.game.game === 'truth or dare') {
+        await this.roundService.update(round.id, {
+          round_status: 'finished',
+          round_winner: round.riddler.id,
+          chatId: round.game.id,
+        });
+        return { ...move, correct: false };
+      }
+      if (round.attempt >= 3) {
+        await this.roundService.update(round.id, {
+          round_status: 'finished',
+          round_winner: round.riddler.id,
+          chatId: round.game.id,
+        });
+        return { ...move, correct: false };
+      }
+    }
+
+    return { ...move, correct: false };
   }
-
-
 
   findAll() {
     return `This action returns all move`;
