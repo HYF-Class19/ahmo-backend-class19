@@ -44,7 +44,7 @@ export class ChatService {
     const createdChat = await this.repository.save(chat);
 
     if(createChatDto.game) {
-        await this.roundService.create({chatId: createdChat.id, riddlerId: createdChat.admin.id})
+      await this.roundService.create({chatId: createdChat.id, riddlerId: createdChat.admin.id, submiting: 2})
       return this.repository.save(createdChat);
     }
 
@@ -64,7 +64,7 @@ export class ChatService {
     if(!id) return 
     const chat = await this.repository.findOne({
       where: { id },
-      relations: ['members', 'members.user', 'messages', 'messages.sender', 'admin', 'rounds', 'rounds.riddler', 'rounds.moves'],
+      relations: ['members', 'members.user', 'messages', 'messages.sender', 'admin', 'rounds', 'rounds.riddler', 'rounds.moves', 'rounds.moves.player'],
     });
 
     const sortedMessages = chat.messages.sort((a, b) => {

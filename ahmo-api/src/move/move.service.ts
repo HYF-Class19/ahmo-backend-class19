@@ -23,24 +23,24 @@ export class MoveService {
     const user = await this.userService.findById(userId);
     const round = await this.repositoryRound.findOne({
       where: { id: dto.roundId },
-      relations: ['game', 'riddler'],
+      relations: ['game', 'riddler', 'moves'],
     });
 
     if (round.game.game === 'words') {
       const word = dto.move_data.toLocaleLowerCase(); 
       const apiKey = 's8coetpxmv8wfdszh88zv2lmqqjukrd5mdz7ldnadnloqtbco'; 
       const accept = dto.last_word ? dto.last_word[dto.last_word.length - 1].toLowerCase() === dto.move_data[0].toLowerCase() : true
-
+      const alreadyExist = round.moves?.find(m => m.move_data === dto.move_data)
 
       const url = `https://api.wordnik.com/v4/word.json/${word}/definitions?limit=1&api_key=${apiKey}`;
 
       // make the API request
       const response = await fetch(url)
-      if(response.ok && accept) {
+      if(response.ok && accept && !alreadyExist) {
         const move = await this.repository.save({ ...dto, player: user, round});
         return {...move, correct: true}
       } else {
-        return {error: !accept ? 'You have to name a word string from your opponents word\'s last letter' : 'The word does not exist',correct: false}
+        return {error: !accept ? 'You have to name a word string from your opponents word\'s last letter' : alreadyExist ? 'you or your opponent alreasy named this word within this game' : 'The word does not exist',correct: false}
       }
     }
 

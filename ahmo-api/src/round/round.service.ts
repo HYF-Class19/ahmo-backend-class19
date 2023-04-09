@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRoundDto } from './dto/create-round.dto';
-import { UpdateRoundDto } from './dto/update-round.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {RoundEntity} from "./entities/round.entity";
 import {Repository} from "typeorm";
@@ -27,22 +26,23 @@ export class RoundService {
 
     // @ts-ignore
     const round = await this.repository.save({
+      submiting: createRoundDto.submiting || 0,
       game,
       riddler,
-      round_status: 'active'
+      round_status: 'active',
+      moves:[]
     });
     return round;
   }
 
-  async findAll(gameId: number, limit?: number, page?:number) {
+  async findAll(gameId: number) {
     const qb = await this.repository.createQueryBuilder('round')
     qb.leftJoin('round.game', 'game')
     qb.where('game.id = :gameId', {gameId})
     qb.orderBy('round.id', 'ASC')
     qb.leftJoinAndSelect('round.moves', 'moves')
+    qb.leftJoinAndSelect('moves.player', 'player')
     qb.leftJoinAndSelect('round.riddler', 'riddler')
-    qb.skip((page - 1) * limit)
-    qb.take(limit)
     return qb.getMany()
   }
 

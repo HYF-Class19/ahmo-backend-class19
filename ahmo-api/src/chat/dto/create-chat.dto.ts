@@ -1,5 +1,5 @@
 import { ChatType } from "../entities/chat.entity";
-import { IsArray, IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class CreateChatDto {
   @IsString()
