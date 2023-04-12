@@ -6,6 +6,7 @@ export class CreateChatDto {
   type: ChatType
 
   @IsString()
+  @IsOptional()
   name: string;
 
   @IsString()

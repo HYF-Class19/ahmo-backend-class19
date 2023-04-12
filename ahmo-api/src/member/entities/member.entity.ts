@@ -18,7 +18,7 @@ export class MemberEntity {
   @Column({ nullable: true, default: 0 })
   score: number;
 
-  @ManyToOne(() => ChatEntity, (chat) => chat.members)
+  @ManyToOne(() => ChatEntity, (chat) => chat.members, { onDelete: 'CASCADE'})
   @JoinColumn({ name: 'chat_id' })
   chat: ChatEntity;
 

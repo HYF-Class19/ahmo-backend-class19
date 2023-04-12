@@ -20,4 +20,8 @@ export class MemberService {
     const user = await this.repository.update(member.id, {score: member.score});
     return user
   }
+
+  async remove(id: number) {
+    return this.repository.delete(id)
+  }
 }

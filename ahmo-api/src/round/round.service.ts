@@ -73,8 +73,8 @@ export class RoundService {
 
   async addAttempt(id: number) {
     const round = await this.repository.findOne({where: {id}})
-    round.attempt++
-    return this.repository.save(round)
+    const attempt = round.attempt + 1
+    return this.repository.update(id, {attempt})
   }
 
   remove(id: number) {

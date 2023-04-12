@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Patch } from "@nestjs/common";
 import { MemberService } from './member.service';
 
 @Controller('members')
@@ -8,5 +8,10 @@ export class MemberController {
   @Get()
   getAll() {
     return this.MemberService.getAll();
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.MemberService.remove(+id)
   }
 }

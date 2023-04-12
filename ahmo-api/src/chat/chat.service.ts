@@ -29,7 +29,10 @@ export class ChatService {
       chat.game = createChatDto.game
     }
 
-    chat.name = createChatDto.name;
+    if(createChatDto.name) {
+      chat.name = createChatDto.name;
+    }
+    
     chat.type = createChatDto.type;
     chat.admin = user;
     const group = createChatDto.members.split(',').map(memberId => +memberId)
@@ -82,12 +85,12 @@ export class ChatService {
     return {...chat, messages: sortedMessages, rounds: sortedRounds }
   }
 
-  update(id: number, updateChatDto: UpdateChatDto) {
-    return `This action updates a #${id} chat`;
+  async update(id: number, memberId: number) {
+    return 'update chat'
   }
 
   remove(id: number) {
-    return `This action removes a #${id} chat`;
+    return this.repository.delete(id)
   }
 
   async findChatsByUserId(userId: number, query?: string) {

@@ -29,7 +29,7 @@ export class MoveService {
     if (round.game.game === 'words') {
       const word = dto.move_data.toLocaleLowerCase(); 
       const apiKey = 's8coetpxmv8wfdszh88zv2lmqqjukrd5mdz7ldnadnloqtbco'; 
-      const accept = dto.last_word ? dto.last_word[dto.last_word.length - 1].toLowerCase() === dto.move_data[0].toLowerCase() : true
+      const accept = dto.last_word ? dto.last_word.trim().slice(-1).toLowerCase().toLowerCase() === dto.move_data.trim().slice(0,1).toLowerCase() : true
       const alreadyExist = round.moves?.find(m => m.move_data === dto.move_data)
 
       const url = `https://api.wordnik.com/v4/word.json/${word}/definitions?limit=1&api_key=${apiKey}`;
@@ -68,7 +68,7 @@ export class MoveService {
         });
         return { ...move, correct: false };
       }
-      if (round.attempt >= 3) {
+      if (round.attempt + 1 >= 3) {
         await this.roundService.update(round.id, {
           round_status: 'finished',
           round_winner: round.riddler.id,
