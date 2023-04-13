@@ -50,6 +50,9 @@ export class ChatEntity {
   @Column({nullable: true})
   game: string;
 
+  @Column({nullable: true})
+  image_url: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

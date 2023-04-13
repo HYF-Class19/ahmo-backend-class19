@@ -2,9 +2,10 @@ require('dotenv').config()
 
 const io = require("socket.io")(process.env.PORT, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:3000",
   },
 });
+
 
 let users = [];
 
@@ -25,8 +26,6 @@ io.on("connection", (socket) => {
     addUser(user, socket.id);
     io.emit("getUsers", users);
   });
-
-  // typing and get typing
 
   socket.on("typing", ({ sender, chatId, receivers }) => {
     const gotUses = getUsers(receivers);
@@ -61,10 +60,10 @@ io.on("connection", (socket) => {
     }
   );
 
-  socket.on("newRound", ({ receivers, round }) => {
+  socket.on("newRound", ({ previousWinner, gameId, receivers, round }) => {
     const gotUses = getUsers(receivers);
     console.log("new round users", gotUses);
-    io.to(gotUses.map((user) => user.socketId)).emit("getNewRound", round);
+    io.to(gotUses.map((user) => user.socketId)).emit("getNewRound", {previousWinner, gameId, round});
   });
 
   socket.on(
@@ -97,12 +96,13 @@ io.on("connection", (socket) => {
     }
   );
 
-  socket.on('updateWord', ({player, receivers, round_data, roundId}) => {
+  socket.on('updateWord', ({player, receivers, round_data, roundId, gameId}) => {
     const gotUses = getUsers(receivers);
     io.to(gotUses.map(user => user.socketId)).emit('getUpdatedWord', {
       player,
       round_data,
-      roundId
+      roundId,
+      gameId
     })
   })
 

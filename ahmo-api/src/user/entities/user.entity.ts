@@ -23,8 +23,8 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
-  imageUrl: string;
+  @Column({nullable: true})
+  image_url: string;
 
   @Column()
   password: string;
