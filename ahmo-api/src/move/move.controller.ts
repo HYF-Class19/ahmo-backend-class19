@@ -1,8 +1,18 @@
-import {Controller, Get, Post,Request, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
-import { MoveService } from './move.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateMoveDto } from './dto/create-move.dto';
 import { UpdateMoveDto } from './dto/update-move.dto';
-import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import { MoveService } from './move.service';
 
 @Controller('moves')
 export class MoveController {

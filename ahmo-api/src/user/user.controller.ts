@@ -1,8 +1,17 @@
-import {Controller, Get, Request, Body, Patch, Param, Delete, UseGuards, Query} from "@nestjs/common";
-import { UserService } from './user.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import {query} from "express";
+import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
@@ -26,8 +35,18 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(JwtAuthGuard)
+  update(
+    @Request() req: any,
+    @Body() updateUserDto: UpdateUserDto,
+    @Query('passwd') passwd: string,
+  ) {
+    console.log(passwd);
+    console.log(updateUserDto);
+    if (passwd) {
+      return this.userService.updatePasswd(+req.user.id, updateUserDto);
+    }
+    return this.userService.update(+req.user.id, updateUserDto);
   }
 
   @Delete(':id')
@@ -37,6 +56,6 @@ export class UserController {
 
   @Get('search')
   search(@Query('query') query?: string) {
-    return this.userService.search(query)
+    return this.userService.search(query);
   }
 }
