@@ -41,8 +41,6 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @Query('passwd') passwd: string,
   ) {
-    console.log(passwd);
-    console.log(updateUserDto);
     if (passwd) {
       return this.userService.updatePasswd(+req.user.id, updateUserDto);
     }

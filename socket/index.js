@@ -22,7 +22,6 @@ const getUsers = (receivers) => {
 
 io.on("connection", (socket) => {
   socket.on("addUser", (user) => {
-    console.log("user connected", {...user, socketId: socket.id});
     addUser(user, socket.id);
     io.emit("getUsers", users);
   });
@@ -103,6 +102,13 @@ io.on("connection", (socket) => {
       round_data,
       roundId,
       gameId
+    })
+  })
+
+  socket.on('newChat', ({receivers, chat}) => {
+    const gotUses = getUsers(receivers);
+    io.to(gotUses.map(user => user.socketId)).emit('getNewChat', {
+      chat
     })
   })
 
